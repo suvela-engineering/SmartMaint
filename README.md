@@ -1,2 +1,2 @@
 # SmartMaint
-AI assistant Software for industrial maintenance 
+An AI Assistant Software for Industrial Maintenance 
