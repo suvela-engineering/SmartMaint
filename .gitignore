@@ -132,3 +132,8 @@ dist
 # Debug and developemnt folders
 Debug/
 bin/
+*/.env.development
+*/.env.production
+/appsettings.Development.json
+/appsettings.json
+SmartMaintApi/appsettings.Development.json

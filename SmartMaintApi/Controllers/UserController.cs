@@ -1,31 +1,27 @@
 using System;
+using System.IO.Compression;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartMaintApi.Models;
 
 
-public class UserController() : ControllerBase
+[Route("API/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
 {
-    // private readonly ApiDbContext _context;
-    private readonly UserManager<User> _userManager;
-    private readonly DbContextOptions<ApiDbContext> _contextOptions;
+    private readonly ApiDbContext _context;
 
-
-    // Parameterized constructor for dependency injection
-    public UserController( /*ApiDbContext context,*/ UserManager<User> userManager, DbContextOptions<ApiDbContext> contextOptions) : this()
+    public UserController(ApiDbContext context)
     {
-        // _context = context;
-        _userManager = userManager;
-        _contextOptions = contextOptions;
+        _context = context;
     }
 
-
     // **Read User**
-    [HttpGet("api/users/{id}")]
-    public async Task<IActionResult> GetUser(string id)
+    [HttpGet("{UserId}", Name = "GetUser")]
+    public async Task<IActionResult> GetUser(int UserId)
     {
-        var user = await _userManager.FindByIdAsync(id);
+        var user = await _context.FindAsync<User>(UserId);
         if (user == null)
         {
             return NotFound();
@@ -35,7 +31,7 @@ public class UserController() : ControllerBase
     }
 
     // **Create User** (assuming password is handled separately)
-    [HttpPost("api/users")]
+    [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] User user)
     {
         if (!ModelState.IsValid)
@@ -43,71 +39,65 @@ public class UserController() : ControllerBase
             return BadRequest(ModelState.Values.SelectMany(v => v.Errors));
         }
 
-        user.Audit.TimeStamp = DateTime.UtcNow; // Update modification time
-        user.Audit.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
+        user.TimeStamp = DateTime.UtcNow; // Update modification time
+        user.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
         // user.Audit.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
 
-        using (var context = new ApiDbContext(_contextOptions))
-        {
-            await context.Users.AddAsync(user);
-            await context.SaveChangesAsync();
-        }
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
 
-        return CreatedAtRoute("GetUser", new { id = user.Id }, user);
+
+        return CreatedAtRoute("GetUser", new { UserId = user.UserId }, user);
     }
 
     // **Update User** (excluding audit trail updates)
-    [HttpPut("api/users/{id}")]
-    public async Task<IActionResult> UpdateUser(string id, [FromBody] User userUpdate)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState.Values.SelectMany(v => v.Errors));
-        }
+    // [HttpPut("{id}")]
+    // public async Task<IActionResult> UpdateUser(string id, [FromBody] User userUpdate)
+    // {
+    //     if (!ModelState.IsValid)
+    //     {
+    //         return BadRequest(ModelState.Values.SelectMany(v => v.Errors));
+    //     }
 
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
+    //     var user = await _userManager.FindByIdAsync(id);
+    //     if (user == null)
+    //     {
+    //         return NotFound();
+    //     }
 
-        // Update relevant user properties (exclude audit trail)
-        user.UserName = userUpdate.UserName;
-        // ...
+    //     // Update relevant user properties (exclude audit trail)
+    //     user.UserName = userUpdate.UserName;
+    //     // ...
 
-        user.Audit.TimeStamp = DateTime.UtcNow; // Update modification time
-        user.Audit.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
-        // user.Audit.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
+    //     user.TimeStamp = DateTime.UtcNow; // Update modification time
+    //     user.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
+    //     // user.Audit.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
 
-        using (var context = new ApiDbContext(_contextOptions))
-        {
-            context.Users.Update(user);
-            await context.SaveChangesAsync();
-        }
 
-        return NoContent();
-    }
+    //         _context.Users.Update(user);
+    //         await _context.SaveChangesAsync();
+
+    //     return NoContent();
+    // }
     // **Delete User** (soft delete with audit trail)
-    [HttpDelete("api/users/{id}")]
-    public async Task<IActionResult> DeleteUser(string id)
-    {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
+    // [HttpDelete("{id}")]
+    // public async Task<IActionResult> DeleteUser(string id)
+    // {
+    //     var user = await _userManager.FindByIdAsync(id);
+    //     if (user == null)
+    //     {
+    //         return NotFound();
+    //     }
 
-        user.Audit.TimeStamp = DateTime.UtcNow; // Update modification time
-        user.Audit.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
-        // user.Audit.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
+    //     user.TimeStamp = DateTime.UtcNow; // Update modification time
+    //     user.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
+    //     // user.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
 
-        // Persist changes to the database
-        using (var context = new ApiDbContext(_contextOptions)) // Consider using the injected context
-        {
-            context.Users.Update(user);
-            await context.SaveChangesAsync();
-        }
+    //     // Persist changes to the database
+    //         _context.Users.Update(user);
+    //         await _context.SaveChangesAsync();
 
-        return NoContent();
-    }
+
+    //     return NoContent();
+    // }
 }

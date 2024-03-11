@@ -7,18 +7,14 @@ using Microsoft.AspNetCore.Identity;
 
 namespace SmartMaintApi.Models
 {
-    public class User : IdentityUser, IAuditTrail
+    public class User : IdentityUser
     {
+        [Key]
         public int UserId { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public AuditTrail Audit { get; set; } = new AuditTrail();
-
-        // [Required]
-        // public string? LastAction { get; set; }
-        // [Required]
-        // public string? UpdateUser { get; set; }
-        // [Required]
-        // public DateTime TimeStamp { get; set; } = DateTime.UtcNow;
+        public string? LastAction { get; set; }
+        public string? UpdateUser { get; set; }
+        public DateTime? TimeStamp { get; set; } = DateTime.UtcNow;
     }
 }
