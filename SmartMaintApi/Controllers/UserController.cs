@@ -10,12 +10,8 @@ using SmartMaintApi.Models;
 [ApiController]
 public class UserController : ControllerBase
 {
+    public UserController(ApiDbContext context) => _context = context;
     private readonly ApiDbContext _context;
-
-    public UserController(ApiDbContext context)
-    {
-        _context = context;
-    }
 
     // **Read User**
     [HttpGet("{UserId}", Name = "GetUser")]
@@ -79,25 +75,27 @@ public class UserController : ControllerBase
 
     //     return NoContent();
     // }
-    // **Delete User** (soft delete with audit trail)
-    // [HttpDelete("{id}")]
-    // public async Task<IActionResult> DeleteUser(string id)
-    // {
-    //     var user = await _userManager.FindByIdAsync(id);
-    //     if (user == null)
+    //     // **Delete User** (soft delete with audit trail)
+
+
+    //     [HttpDelete("{id}")]
+    //     public async Task<IActionResult> DeleteUser(string id)
     //     {
-    //         return NotFound();
-    //     }
+    //         var user = await _context.FindByIdAsync(id);
+    //         if (user == null)
+    //         {
+    //             return NotFound();
+    //         }
 
-    //     user.TimeStamp = DateTime.UtcNow; // Update modification time
-    //     user.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
-    //     // user.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
+    //         user.TimeStamp = DateTime.UtcNow; // Update modification time
+    //         user.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
+    //                                                              // user.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
 
-    //     // Persist changes to the database
+    //         // Persist changes to the database
     //         _context.Users.Update(user);
     //         await _context.SaveChangesAsync();
 
 
-    //     return NoContent();
-    // }
+    //         return NoContent();
+    //     }
 }

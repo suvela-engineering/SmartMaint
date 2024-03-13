@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SmartMaintApi.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240313191443_EntityInfo for User")]
+    partial class EntityInfoforUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,22 +104,22 @@ namespace SmartMaintApi.Migrations
                             b1.Property<int>("UserId")
                                 .HasColumnType("integer");
 
-                            b1.Property<DateTime>("Created")
+                            b1.Property<DateTime>("CreateDate")
                                 .HasColumnType("timestamp with time zone");
 
-                            b1.Property<string>("CreatedBy")
+                            b1.Property<string>("CreateUser")
                                 .HasColumnType("text");
 
-                            b1.Property<string>("DeleteBy")
+                            b1.Property<string>("DeleteUser")
                                 .HasColumnType("text");
 
                             b1.Property<DateTime?>("Deleted")
                                 .HasColumnType("timestamp with time zone");
 
-                            b1.Property<DateTime?>("Modified")
+                            b1.Property<DateTime?>("ModifiedDate")
                                 .HasColumnType("timestamp with time zone");
 
-                            b1.Property<string>("ModifiedBy")
+                            b1.Property<string>("ModifiedUser")
                                 .HasColumnType("text");
 
                             b1.HasKey("UserId");
