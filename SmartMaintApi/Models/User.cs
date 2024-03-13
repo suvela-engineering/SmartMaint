@@ -13,9 +13,6 @@ namespace SmartMaintApi.Models
         public int UserId { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public string? LastAction { get; set; }
-        public string? UpdateUser { get; set; }
-        public DateTime? TimeStamp { get; set; } = DateTime.UtcNow;
         public EntityInfo EntityInfo { get; set; } = new EntityInfo();
 
     }

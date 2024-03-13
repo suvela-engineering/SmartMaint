@@ -35,13 +35,8 @@ public class UserController : ControllerBase
             return BadRequest(ModelState.Values.SelectMany(v => v.Errors));
         }
 
-        user.TimeStamp = DateTime.UtcNow; // Update modification time
-        user.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
-        // user.Audit.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
-
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
-
 
         return CreatedAtRoute("GetUser", new { UserId = user.UserId }, user);
     }
