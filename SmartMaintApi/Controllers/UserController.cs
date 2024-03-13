@@ -1,8 +1,5 @@
-using System;
-using System.IO.Compression;
-using Microsoft.AspNetCore.Identity;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SmartMaintApi.Models;
 
 
@@ -18,10 +15,12 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetUser(int UserId)
     {
         var user = await _context.FindAsync<User>(UserId);
+
         if (user == null)
-        {
             return NotFound();
-        }
+
+        // if (user.EntityInfo.Deleted.HasValue)
+        //     return ResourceGone();
 
         return Ok(user);
     }
@@ -73,24 +72,29 @@ public class UserController : ControllerBase
     //     // **Delete User** (soft delete with audit trail)
 
 
-    //     [HttpDelete("{id}")]
-    //     public async Task<IActionResult> DeleteUser(string id)
-    //     {
-    //         var user = await _context.FindByIdAsync(id);
-    //         if (user == null)
-    //         {
-    //             return NotFound();
-    //         }
+    [HttpDelete("{id}")]
+    // [ProducesResponseType(statusCode: 204, type: typeof(void))]
+    [ProducesResponseType(statusCode: 204, type: typeof(void))] // 204 - No Content: User deleted successfully
+    [ProducesResponseType(statusCode: 404, type: typeof(void))] // 404 - Not Found
+    [ProducesResponseType(statusCode: 410, type: typeof(void))] // 410 - Client Error (Resource Gone)
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _context.FindAsync<User>(id);
 
-    //         user.TimeStamp = DateTime.UtcNow; // Update modification time
-    //         user.UpdateUser = HttpContext?.User?.Identity?.Name; // Set current user for audit trail
-    //                                                              // user.LastAction = HttpContext. // Here PUT, POST, DELETE, READ
+        if (user == null)
+            return NotFound();
 
-    //         // Persist changes to the database
-    //         _context.Users.Update(user);
-    //         await _context.SaveChangesAsync();
+        if (user.EntityInfo.Deleted.HasValue)
+            return StatusCode((int)HttpStatusCode.Gone);
 
+        user.EntityInfo.Deleted = DateTime.UtcNow;
 
-    //         return NoContent();
-    //     }
+        // TO DO: Implement user who made the query/logged. Same to Interceptor
+        user.EntityInfo.DeleteBy = HttpContext?.User?.Identity?.Name ?? "Unknown User";
+
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
 }
