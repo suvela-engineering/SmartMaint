@@ -132,6 +132,7 @@ dist
 # Debug and developemnt folders
 Debug/
 bin/
+obj/
 */.env.development
 */.env.production
 */appsettings.Development.json
