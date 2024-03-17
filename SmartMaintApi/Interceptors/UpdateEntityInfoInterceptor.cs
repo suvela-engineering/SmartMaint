@@ -13,9 +13,7 @@ public sealed class UpdateEntityInfoInterceptor : SaveChangesInterceptor
          CancellationToken cancellationToken = default)
     {
         if (eventData.Context is not null)
-        {
             UpdateAuditableEntities(eventData.Context);
-        }
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
@@ -28,13 +26,10 @@ public sealed class UpdateEntityInfoInterceptor : SaveChangesInterceptor
         foreach (EntityEntry entry in entities)
         {
             if (entry.State == EntityState.Added)
-            {
                 UpdateAddedEntity(entry, utcNow);
-            }
+
             else if (entry.State == EntityState.Modified)
-            {
                 UpdateModifiedEntity(entry, utcNow);
-            }
         }
     }
 
@@ -57,8 +52,6 @@ public sealed class UpdateEntityInfoInterceptor : SaveChangesInterceptor
     private static void UpdatePropertyIfExists(EntityEntry entry, string propertyName, object value)
     {
         if (entry.Metadata.FindProperty(propertyName) != null)
-        {
             entry.Property(propertyName).CurrentValue = value;
-        }
     }
 }
